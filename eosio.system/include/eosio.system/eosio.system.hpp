@@ -136,6 +136,7 @@ namespace eosiosystem {
       std::vector<name>   producers; /// the producers approved by this voter if no proxy set
       int64_t             staked = 0;
 
+      double rep_score = 0.0;
       int64_t power_score = 0;
       int64_t unvested_power = 0;
       int64_t net_score = 0;

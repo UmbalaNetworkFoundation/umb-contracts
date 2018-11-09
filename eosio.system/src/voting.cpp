@@ -18,6 +18,8 @@
 #include <algorithm>
 #include <cmath>
 
+#include "random.hpp"
+
 namespace eosiosystem {
    using eosio::indexed_by;
    using eosio::const_mem_fun;
