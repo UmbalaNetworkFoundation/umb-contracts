@@ -136,6 +136,17 @@ namespace eosiosystem {
       std::vector<name>   producers; /// the producers approved by this voter if no proxy set
       int64_t             staked = 0;
 
+      int64_t power_score = 0;
+      int64_t unvested_power = 0;
+      int64_t net_score = 0;
+      int64_t cpu_score = 0;
+      int64_t trx_score = 0;
+
+      void update_score() {
+        rep_score = power_score * 0.3 + 0.15 * net_score + 0.15 * cpu_score + 0.3 * trx_score;
+      }
+      uint64_t last_update_time = -1;
+
       /**
        *  Every time a vote is cast we must first "undo" the last vote weight, before casting the
        *  new vote weight.  Vote weight is calculated as:
