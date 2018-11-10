@@ -3,11 +3,12 @@
  *  @copyright defined in eos/LICENSE.txt
  */
 #include <eosio.system/eosio.system.hpp>
+#include <eosiolib/multi_index.hpp>
 #include <cmath>
 
 namespace eosiosystem
 {
-using eosio::bytes;
+// using eosio::bytes;
 using eosio::const_mem_fun;
 using eosio::indexed_by;
 using eosio::print;
@@ -17,9 +18,9 @@ using eosio::transaction;
 /**
  * @private
  */
-void system_contract::update_powerscore(account_name owner)
+void system_contract::updatepwscore(name owner)
 {
-   auto it = _voters.find(owner);
+   auto it = _voters.find(owner.value);
    if (it != _voters.end())
    {
       if (it->last_update_time > 0 && now() - it->last_update_time >= seconds_per_day)
@@ -39,7 +40,7 @@ void system_contract::update_powerscore(account_name owner)
          {
             // update user table resource
             _gstate.total_powerscore += converted_amount;
-            _voters.modify(it, 0, [&](auto &rs) {
+            _voters.modify(it, owner, [&](auto &rs) {
                rs.power_score += converted_amount;
                rs.unvested_power -= converted_amount;
                rs.last_update_time = now();
@@ -58,10 +59,10 @@ void system_contract::update_powerscore(account_name owner)
    }
 }
 
-void system_contract::change_powerscore(account_name account, asset delta_asset)
+void system_contract::changepwscore(name account, asset delta_asset)
 {
    int64_t delta = delta_asset.amount;
-   auto it = _voters.find(account);
+   auto it = _voters.find(account.value);
    if (delta < 0)
    {
       // unstake powerscore
@@ -88,7 +89,7 @@ void system_contract::change_powerscore(account_name account, asset delta_asset)
    else
    {
       //update unconverted tokens
-      update_powerscore(account);
+      updatepwscore(account);
 
       // spend new tokens for powerscore
       if (it == _voters.end())

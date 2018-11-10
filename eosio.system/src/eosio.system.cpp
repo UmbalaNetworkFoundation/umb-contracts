@@ -6,7 +6,7 @@
 #include "delegate_bandwidth.cpp"
 #include "voting.cpp"
 #include "exchange_state.cpp"
-
+#include "reputation_score.cpp"
 
 namespace eosiosystem {
 
@@ -315,4 +315,7 @@ EOSIO_DISPATCH( eosiosystem::system_contract,
      (regproducer)(unregprod)(voteproducer)(regproxy)
      // producer_pay.cpp
      (onblock)(claimrewards)
+     // reputation_score.cpp
+     (updaterscore)
+     
 )

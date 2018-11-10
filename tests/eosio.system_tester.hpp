@@ -11,10 +11,16 @@
 
 #include <fc/variant_object.hpp>
 #include <fstream>
+#include <algorithm> // for copy
+#include <iterator>  // for ostream_iterator
+#include <iostream>
+#include <vector>
+
 
 using namespace eosio::chain;
 using namespace eosio::testing;
 using namespace fc;
+using namespace std;
 
 using mvo = fc::mutable_variant_object;
 
@@ -26,6 +32,19 @@ using mvo = fc::mutable_variant_object;
 #endif
 #endif
 
+#define Ns(X) string_to_name(((string)X).c_str())
+const char _map[] = {'1', '2', '3', '4', '5'};
+
+template <class T>
+void print_vec(std::vector<T> v)
+{
+   cout << " Vector<";
+   for (auto const &e : v)
+   {
+      cout << e << ", ";
+   }
+   cout << ">" << endl;
+}
 
 namespace eosio_system {
 
@@ -260,6 +279,14 @@ public:
       return push_action( account, N(sellram), mvo()( "account", account)("bytes",numbytes) );
    }
 
+   action_result updaterscore(const account_name& account) {
+      cout << " acount: " << account << ", N: " << name(account) << endl;
+      return push_action(
+                        N(alice),
+                        N(updaterscore),
+                        mvo()("owner", account));
+   }
+
    action_result push_action( const account_name& signer, const action_name &name, const variant_object &data, bool auth = true ) {
          string action_type_name = abi_ser.get_action_type(name);
 
@@ -368,6 +395,16 @@ public:
    asset get_balance( const account_name& act, symbol balance_symbol = symbol{CORE_SYM} ) {
       vector<char> data = get_row_by_account( N(eosio.token), act, N(accounts), balance_symbol.to_symbol_code().value );
       return data.empty() ? asset(0, balance_symbol) : token_abi_ser.binary_to_variant("account", data, abi_serializer_max_time)["balance"].as<asset>();
+   }
+
+   asset get_pending_powerscore( const account_name& act ) {
+      vector<char> data = get_row_by_account( config::system_account_name, act, N(unpscore), act );
+      return data.empty() ? asset(0, symbol(CORE_SYMBOL)) : abi_ser.binary_to_variant( "pending_powerscore", data, abi_serializer_max_time )["token"].as<asset>();
+   }
+
+   asset get_powerscore( const account_name& act ) {
+      vector<char> data = get_row_by_account( config::system_account_name, act, N(pscore), act );
+      return data.empty() ? asset(0, symbol(CORE_SYMBOL)) : abi_ser.binary_to_variant( "powerscore", data, abi_serializer_max_time )["token"].as<asset>();
    }
 
    fc::variant get_total_stake( const account_name& act ) {
@@ -484,6 +521,19 @@ public:
       return msig_abi_ser;
    }
 
+
+
+std::string num2string(int num)
+{
+   string out = "";
+   do
+   {
+      out = _map[num % 5] + out;
+      num /= 5;
+   } while (num > 0);
+   return out;
+}
+
    vector<name> active_and_vote_producers() {
       //stake more than 15% of total EOS supply to activate chain
       transfer( "eosio", "alice1111111", core_sym::from_string("650000000.0000"), "eosio" );
@@ -492,11 +542,23 @@ public:
       // create accounts {defproducera, defproducerb, ..., defproducerz} and register as producers
       std::vector<account_name> producer_names;
       {
-         producer_names.reserve('z' - 'a' + 1);
-         const std::string root("defproducer");
-         for ( char c = 'a'; c < 'a'+21; ++c ) {
-            producer_names.emplace_back(root + std::string(1, c));
+      //    producer_names.reserve('z' - 'a' + 1);
+      //    const std::string root("defproducer");
+      //    for ( char c = 'a'; c < 'a'+21; ++c ) {
+      //       producer_names.emplace_back(root + std::string(1, c));
+      //    }
+      //TODO: should keep minimum number of BPS ?
+         producer_names.reserve(45);
+         const std::string root("prod");
+         for (int c = 0; c < 45; ++c)
+         {
+            producer_names.emplace_back(root + num2string(c));
          }
+         //sort producer by names
+         //because voting requires voting list given by a voter must be ascending order
+         sort(producer_names.begin(), producer_names.end(), [](account_name &a, account_name &b) {
+            return Ns(a) < Ns(b);
+         });
          setup_producer_accounts(producer_names);
          for (const auto& p: producer_names) {
 
@@ -532,7 +594,7 @@ public:
       produce_blocks( 250 );
 
       auto producer_keys = control->head_block_state()->active_schedule.producers;
-      BOOST_REQUIRE_EQUAL( 21, producer_keys.size() );
+      BOOST_REQUIRE_EQUAL( 45, producer_keys.size() );
       BOOST_REQUIRE_EQUAL( name("defproducera"), producer_keys[0].producer_name );
 
       return producer_names;

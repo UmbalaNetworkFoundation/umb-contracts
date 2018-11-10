@@ -56,6 +56,12 @@ namespace eosiosystem {
       uint64_t             total_ram_bytes_reserved = 0;
       int64_t              total_ram_stake = 0;
 
+      //custom parameters for reputation system
+      int64_t total_powerscore = 0;
+      int64_t total_netscore = 0;
+      int64_t total_cpuscore = 0;
+      int64_t total_trxscore = 0;
+
       block_timestamp      last_producer_schedule_update;
       time_point           last_pervote_bucket_fill;
       int64_t              pervote_bucket = 0;
@@ -288,6 +294,17 @@ namespace eosiosystem {
          [[eosio::action]]
          void refund( name owner );
 
+          // functions defined in power_score.cpp
+        [[eosio::action]]
+         void updatepwscore(name owner);
+
+         [[eosio::action]]
+         void changepwscore(name owner, asset delta_asset);
+
+        // function defined in reputation score.cpp
+        [[eosio::action]]
+         void updaterscore(name account);
+
          // functions defined in voting.cpp
 
          [[eosio::action]]
@@ -363,6 +380,9 @@ namespace eosiosystem {
                                                double shares_rate, bool reset_to_zero = false );
          double update_total_votepay_share( time_point ct,
                                             double additional_shares_delta = 0.0, double shares_rate_delta = 0.0 );
+
+        // defined in resource_score.cpp
+        void update_resource_score(const name account);
    };
 
 } /// eosiosystem
