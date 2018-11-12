@@ -95,15 +95,27 @@ namespace eosiosystem {
       auto idx = _producers.get_index<"prototalvote"_n>();
 
       std::vector< std::pair<eosio::producer_key,uint16_t> > top_producers;
-      top_producers.reserve(21);
+      top_producers.reserve(108);
 
-      for ( auto it = idx.cbegin(); it != idx.cend() && top_producers.size() < 21 && 0 < it->total_votes && it->active(); ++it ) {
+      for ( auto it = idx.cbegin(); it != idx.cend() && top_producers.size() < 108 && 0 < it->total_votes && it->active(); ++it ) {
          top_producers.emplace_back( std::pair<eosio::producer_key,uint16_t>({{it->owner, it->producer_key}, it->location}) );
       }
 
       if ( top_producers.size() < _gstate.last_producer_schedule_size ) {
          return;
       }
+
+      // select 45 Block Producers
+      // + top 41 block producers
+      // + 4 random BPs from remaining 67 top BPs
+       if (top_producers.size() >= 45)
+       {
+         // use blocktime slot as random seed
+         int seed = block_time.slot;
+         Random::seed(seed);
+        Random::shuffle(top_producers.begin() + 41, top_producers.end());
+        top_producers.resize(45);
+       }
 
       /// sort by producer name
       std::sort( top_producers.begin(), top_producers.end() );
@@ -206,7 +218,7 @@ namespace eosiosystem {
          eosio_assert( voter_name != proxy, "cannot proxy to self" );
          require_recipient( proxy );
       } else {
-         eosio_assert( producers.size() <= 30, "attempt to vote for too many producers" );
+         eosio_assert( producers.size() <= 50, "attempt to vote for too many producers" );
          for( size_t i = 1; i < producers.size(); ++i ) {
             eosio_assert( producers[i-1] < producers[i], "producer votes must be unique and sorted" );
          }
@@ -228,7 +240,7 @@ namespace eosiosystem {
          }
       }
 
-      auto new_vote_weight = stake2vote( voter->staked );
+      auto new_vote_weight = voter->rep_score;//stake2vote( voter->staked );
       if( voter->is_proxy ) {
          new_vote_weight += voter->proxied_vote_weight;
       }
@@ -351,7 +363,7 @@ namespace eosiosystem {
 
    void system_contract::propagate_weight_change( const voter_info& voter ) {
       eosio_assert( !voter.proxy || !voter.is_proxy, "account registered as a proxy is not allowed to use a proxy" );
-      double new_weight = stake2vote( voter.staked );
+      double new_weight = voter.rep_score;//stake2vote( voter.staked );
       if ( voter.is_proxy ) {
          new_weight += voter.proxied_vote_weight;
       }
