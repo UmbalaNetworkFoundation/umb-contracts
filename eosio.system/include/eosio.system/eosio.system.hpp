@@ -136,18 +136,6 @@ namespace eosiosystem {
       std::vector<name>   producers; /// the producers approved by this voter if no proxy set
       int64_t             staked = 0;
 
-      double rep_score = 0.0;
-      int64_t power_score = 0;
-      int64_t unvested_power = 0;
-      int64_t net_score = 0;
-      int64_t cpu_score = 0;
-      int64_t trx_score = 0;
-
-      void update_score() {
-        rep_score = power_score * 0.3 + 0.15 * net_score + 0.15 * cpu_score + 0.3 * trx_score;
-      }
-      uint64_t last_update_time = -1;
-
       /**
        *  Every time a vote is cast we must first "undo" the last vote weight, before casting the
        *  new vote weight.  Vote weight is calculated as:
@@ -166,11 +154,24 @@ namespace eosiosystem {
       uint32_t            reserved1 = 0;
       uint32_t            reserved2 = 0;
       eosio::asset        reserved3;
+      double   rep_score = 0;
+      int64_t  power_score = 0;
+      int64_t  unvested_power = 0;
+      int64_t  net_score = 0;
+      int64_t  cpu_score = 0;
+      int64_t  trx_score = 0;
+      uint64_t last_update_time = -1;
+
+      void update_score() {
+        rep_score = power_score * 0.3 + 0.15 * net_score + 0.15 * cpu_score + 0.3 * trx_score;
+      }
+      
 
       uint64_t primary_key()const { return owner.value; }
 
       // explicit serialization macro is not necessary, used here only to improve compilation time
-      EOSLIB_SERIALIZE( voter_info, (owner)(proxy)(producers)(staked)(last_vote_weight)(proxied_vote_weight)(is_proxy)(reserved1)(reserved2)(reserved3) )
+      EOSLIB_SERIALIZE( voter_info, (owner)(proxy)(producers)(staked)(last_vote_weight)(proxied_vote_weight)(is_proxy)(reserved1)(reserved2)(reserved3)
+                        (rep_score) (power_score) (unvested_power) (net_score) (cpu_score) (trx_score) (last_update_time) )
    };
 
    typedef eosio::multi_index< "voters"_n, voter_info >  voters_table;
