@@ -334,6 +334,10 @@ namespace eosiosystem {
          [[eosio::action]]
          void getdailyusage(const name account);
 
+         // function defined in reputation_score.cpp
+         [[eosio::action]]
+         void updateprscore(const name account);
+
       private:
          // Implementation details:
 

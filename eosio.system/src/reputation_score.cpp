@@ -14,7 +14,7 @@ using eosio::print;
 using eosio::singleton;
 using eosio::transaction;
 
-void system_contract::updatep_score(account_name owner)
+void system_contract::updateprscore(const name owner)
 {
    require_auth(owner);
    update_powerscore(owner);
