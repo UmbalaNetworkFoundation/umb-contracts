@@ -37,7 +37,7 @@ void system_contract::calculation_resource_usage_weight(float ratio)
     return exp( - pow(usage - 0.8786 , 2)/ 0.01125);
 }
 
-void system_contract::update_resource_score(const account_name account)
+void system_contract::update_resource_score(const name account)
 {
     /*
        user monthly net_weight & cpu_weight calculate use moving average
@@ -58,9 +58,9 @@ void system_contract::update_resource_score(const account_name account)
     int64_t cpu_score =  calculation_resource_usage_weight(cpu_usage_ratio) * cpu_weight;
     print("Cpu Score: ", cpu_score);
 
-    auto it = _voters.find(owner);
+    auto it = _voters.find(account.valued);
     if (it != _voters.end()) {
-         _voters.modify(it, 0, [&](auto &rs) {
+         _voters.modify(it, account, [&](auto &rs) {
                rs.net_score = net_score;
                rs.cpu_score = cpu_score;
             });

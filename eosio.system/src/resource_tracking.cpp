@@ -20,7 +20,7 @@ using eosio::transaction;
     * 
     *  @pre account 
     */
-void system_contract::getdailyusage(const account_name account)
+void system_contract::getdailyusage(const name account)
 {  
    int64_t net_weight, cpu_weight;
    get_daily_resource_usage(account, &net_weight, &cpu_weight);
@@ -33,7 +33,7 @@ void system_contract::getdailyusage(const account_name account)
     * 
     *  @pre account 
     */
-void system_contract::getmonthlyusage(const account_name account)
+void system_contract::getmonthlyusage(const name account)
 {  
    int64_t net_weight, cpu_weight;
    get_monthly_resource_usage(account, &net_weight, &cpu_weight);

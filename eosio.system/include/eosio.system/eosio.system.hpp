@@ -330,6 +330,10 @@ namespace eosiosystem {
          [[eosio::action]]
          void bidrefund( name bidder, name newname );
 
+         // function defined in resource_tracking.cpp
+         [[eosio::action]]
+         void getdailyusage(const name account);
+
       private:
          // Implementation details:
 
