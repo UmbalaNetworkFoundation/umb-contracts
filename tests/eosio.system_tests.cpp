@@ -3512,10 +3512,12 @@ try
    BOOST_REQUIRE_EQUAL(core_from_string("0.0000"), get_balance("alice"));
    transfer("eosio", "alice", core_from_string("100000.0000"), "eosio");
    //delegatebw from other account won't give powerscore
-   BOOST_REQUIRE_EQUAL(success(), stake("eosio", "alice", core_from_string("500.0000"), core_from_string("500.0000")));
+   BOOST_REQUIRE_EQUAL(success(), stake("alice", "alice", core_from_string("500.0000"), core_from_string("500.0000")));
    BOOST_REQUIRE_EQUAL(success(), push_action(N(alice), 
-                                             N(getdailyusage),
-                                             mvo()("account", "alice")));
+                                             N(changepscore),
+                                             mvo()("account", "alice")("delta_asset", core_from_string("1000.0000"))));
+   asset after_pending_score = get_pending_powerscore("alice");
+   cout << "Pending account score " << after_pending_score << endl;
 }
 FC_LOG_AND_RETHROW()
 

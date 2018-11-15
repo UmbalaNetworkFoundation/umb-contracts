@@ -375,13 +375,13 @@ public:
    }
 
    asset get_pending_powerscore( const account_name& act ) {
-      vector<char> data = get_row_by_account( config::system_account_name, act, N(unpscore), act );
-      return data.empty() ? asset(0, symbol(CORE_SYMBOL)) : abi_ser.binary_to_variant( "pending_powerscore", data, abi_serializer_max_time )["token"].as<asset>();
+      vector<char> data = get_row_by_account( config::system_account_name, config::system_account_name, N(voters), act );
+       return data.empty() ? asset(0, symbol(CORE_SYMBOL)) :  asset(abi_ser.binary_to_variant( "voter_info", data, abi_serializer_max_time )["unvested_power"].as<int64_t>(),symbol(CORE_SYMBOL));
    }
 
    asset get_powerscore( const account_name& act ) {
-      vector<char> data = get_row_by_account( config::system_account_name, act, N(pscore), act );
-      return data.empty() ? asset(0, symbol(CORE_SYMBOL)) : abi_ser.binary_to_variant( "powerscore", data, abi_serializer_max_time )["token"].as<asset>();
+      vector<char> data = get_row_by_account( config::system_account_name, config::system_account_name, N(voters), act );
+      return data.empty() ? asset(0, symbol(CORE_SYMBOL)) :  asset(abi_ser.binary_to_variant( "voter_info", data, abi_serializer_max_time )["power_score"].as<int64_t>(),symbol(CORE_SYMBOL));
    }
 
    asset get_balance( const account_name& act, symbol balance_symbol = symbol{CORE_SYM} ) {

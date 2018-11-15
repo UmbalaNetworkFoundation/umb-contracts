@@ -82,18 +82,6 @@ namespace eosiosystem {
       EOSLIB_SERIALIZE(powerscore, (owner)(token))
    };
 
-   struct [[eosio::table, eosio::contract("eosio.system")]] pending_powerscore
-   {
-      name owner;
-      asset token;
-      time_point_sec last_update_time;
-
-      uint64_t primary_key() const { return owner.value; }
-
-      // explicit serialization macro is not necessary, used here only to improve compilation time
-      EOSLIB_SERIALIZE(pending_powerscore, (owner)(token)(last_update_time))
-   };
-
    /**
     *  These tables are designed to be constructed in the scope of the relevant user, this
     *  facilitates simpler API for per-user queries
@@ -101,8 +89,7 @@ namespace eosiosystem {
    typedef eosio::multi_index< "userres"_n, user_resources >      user_resources_table;
    typedef eosio::multi_index< "delband"_n, delegated_bandwidth > del_bandwidth_table;
    typedef eosio::multi_index< "refunds"_n, refund_request >      refunds_table;
-   typedef eosio::multi_index<"unpscore"_n, pending_powerscore> powerscore_unvested_table;
-   typedef eosio::multi_index<"pscore"_n, powerscore> powerscore_table;
+   //typedef eosio::multi_index<"pscore"_n, powerscore> powerscore_table;
 
 
    /**

@@ -5,6 +5,8 @@
 #include <eosio.system/eosio.system.hpp>
 #include <cmath>
 
+using namespace std;
+
 namespace eosiosystem
 {
 
@@ -13,6 +15,7 @@ using eosio::indexed_by;
 using eosio::print;
 using eosio::singleton;
 using eosio::transaction;
+
 
 /**
  * @private
@@ -60,7 +63,7 @@ void system_contract::updatepscore(const name owner)
 
 void system_contract::changepscore(name account, asset delta_asset)
 {
-   int64_t delta = delta_asset.amount;
+   auto delta = delta_asset.amount;
    auto it = _voters.find(account.value);
    if (delta < 0)
    {
@@ -91,18 +94,20 @@ void system_contract::changepscore(name account, asset delta_asset)
       updatepscore(account);
 
       // spend new tokens for powerscore
-      if (it == _voters.end())
+      if (it != _voters.end())
       {
-         it = _voters.emplace(account, [&](auto &rs) {
-            rs.owner = account;
-            rs.unvested_power = delta;
-            rs.last_update_time = now();
+         _voters.modify(it, account, [&](auto &rs) {
+            rs.unvested_power += delta;
+            eosio_assert(delta == 0,"unvested power");
          });
       }
       else
       {
-         _voters.modify(it, account, [&](auto &rs) {
-            rs.unvested_power += delta;
+
+         it = _voters.emplace(account, [&](auto &rs) {
+            rs.owner = account;
+            rs.unvested_power = delta;
+            rs.last_update_time = now();
          });
       }
    }
