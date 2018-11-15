@@ -3444,6 +3444,64 @@ BOOST_FIXTURE_TEST_CASE( setabi, eosio_system_tester ) try {
    }
 } FC_LOG_AND_RETHROW()
 
+BOOST_FIXTURE_TEST_CASE(powerscore_tests, eosio_system_tester)
+try
+{
+   cross_15_percent_threshold();
+   // active_and_vote_producers();
+
+   create_account_with_resources(N(alice), config::system_account_name, core_from_string("1.0000"), false);
+   BOOST_REQUIRE_EQUAL(core_from_string("0.0000"), get_balance("alice"));
+   transfer("eosio", "alice", core_from_string("100000.0000"), "eosio");
+
+   // delegatebw from other account won't give powerscore
+   BOOST_REQUIRE_EQUAL(success(), stake("eosio", "alice", core_from_string("500.0000"), core_from_string("500.0000")));
+   BOOST_REQUIRE_EQUAL(core_from_string("0.0000"), get_pending_powerscore("alice"));
+
+   // delegatebw yourself give you powerscore
+   BOOST_REQUIRE_EQUAL(success(), stake("alice", "alice", core_from_string("500.0000"), core_from_string("500.0000")));
+   BOOST_REQUIRE_EQUAL(core_from_string("1000.0000"), get_pending_powerscore("alice"));
+
+   //new spending
+   BOOST_REQUIRE_EQUAL(success(), stake("alice", "alice", core_from_string("100.0000"), core_from_string("100.0000")));
+   BOOST_REQUIRE_EQUAL(core_from_string("1200.0000"), get_pending_powerscore("alice"));
+
+   // updatepscore("alice1111111");
+   BOOST_REQUIRE_EQUAL(success(), updatep_reputation_score("alice"));
+   BOOST_REQUIRE_EQUAL(core_from_string("1200.0000"), get_pending_powerscore("alice"));
+   produce_block(fc::hours(24));
+   produce_blocks(2);
+   // BOOST_REQUIRE_EQUAL(success(), stake("alice", "alice", core_from_string("100.0000"), core_from_string("0.0000")));
+   BOOST_REQUIRE_EQUAL(success(), updatep_reputation_score("alice"));
+   BOOST_REQUIRE_EQUAL(core_from_string("1080.0000"), get_pending_powerscore("alice"));
+   produce_block(fc::days(29));
+   BOOST_REQUIRE_EQUAL(success(), updatep_reputation_score("alice"));
+   BOOST_REQUIRE_EQUAL(core_from_string("50.8693"), get_pending_powerscore("alice"));
+
+   // try to unstake less amount than converted tokens 
+   asset pre_pscore = get_powerscore("alice");
+   BOOST_REQUIRE_EQUAL(success(), unstake("alice", "alice", core_from_string("50.0000"), core_from_string("50.0000")));
+   produce_block(fc::days(4));
+   produce_blocks(5);
+   BOOST_REQUIRE_EQUAL(success(), push_action(N(alice), 
+                                             N(refund),
+                                             mvo()("owner", "alice")));
+   asset after_pscore = get_powerscore("alice");
+   asset after_pending_score = get_pending_powerscore("alice");
+   BOOST_REQUIRE_EQUAL(pre_pscore -after_pscore, core_from_string("100.0000"));
+
+   // unstake larger amount than converted tokens
+   BOOST_REQUIRE_EQUAL(success(), unstake("alice", "alice", core_from_string("525.0000"), core_from_string("525.0000")));
+   produce_block(fc::days(4));
+   produce_blocks(5);
+   BOOST_REQUIRE_EQUAL(success(), push_action(N(alice), 
+                                             N(refund),
+                                             mvo()("owner", "alice")));
+   BOOST_REQUIRE_EQUAL(asset(0), get_powerscore("alice"));
+   BOOST_REQUIRE_EQUAL( core_from_string("1050.0000") - after_pscore, after_pending_score - get_pending_powerscore("alice"));
+}
+FC_LOG_AND_RETHROW()
+
 BOOST_FIXTURE_TEST_CASE(resource_tests, eosio_system_tester)
 try
 {

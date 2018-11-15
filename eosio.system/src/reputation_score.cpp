@@ -4,21 +4,18 @@
  */
 #include <eosio.system/eosio.system.hpp>
 #include <eosiolib/privileged.hpp>
+#include "power_score.cpp"
+#include "resource_tracking.cpp"
+#include "resource_score.cpp"
 
 namespace eosiosystem
 {
-using eosio::bytes;
-using eosio::const_mem_fun;
-using eosio::indexed_by;
-using eosio::print;
-using eosio::singleton;
-using eosio::transaction;
 
-void system_contract::updateprscore(const name owner)
-{
-   require_auth(owner);
-   update_powerscore(owner);
-   update_resource_score(owner);
-}
+   void system_contract::updaterscore(const name owner)
+   {
+      require_auth(owner);
+      updatepscore(owner);
+      updaterescore(owner);
+   } 
 
 }

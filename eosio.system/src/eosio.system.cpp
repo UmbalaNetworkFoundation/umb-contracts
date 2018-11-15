@@ -7,6 +7,8 @@
 #include "voting.cpp"
 #include "exchange_state.cpp"
 
+// Reputation System
+#include "reputation_score.cpp"
 
 namespace eosiosystem {
 
@@ -315,4 +317,10 @@ EOSIO_DISPATCH( eosiosystem::system_contract,
      (regproducer)(unregprod)(voteproducer)(regproxy)
      // producer_pay.cpp
      (onblock)(claimrewards)
+     // power_score.cpp
+     (updatepscore)
+     // reputation_score.cpp
+     (updaterscore)
+     // resource_tracking.cpp
+     (getdailyusage)
 )

@@ -74,21 +74,21 @@ namespace eosiosystem {
 
    struct [[eosio::table, eosio::contract("eosio.system")]] powerscore
    {
-      account_name owner;
+      name owner;
       asset token;
 
-      uint64_t primary_key() const { return owner; }
+      uint64_t primary_key() const { return owner.value; }
 
       EOSLIB_SERIALIZE(powerscore, (owner)(token))
    };
 
    struct [[eosio::table, eosio::contract("eosio.system")]] pending_powerscore
    {
-      account_name owner;
+      name owner;
       asset token;
-      time last_update_time;
+      time_point_sec last_update_time;
 
-      uint64_t primary_key() const { return owner; }
+      uint64_t primary_key() const { return owner.value; }
 
       // explicit serialization macro is not necessary, used here only to improve compilation time
       EOSLIB_SERIALIZE(pending_powerscore, (owner)(token)(last_update_time))
@@ -393,6 +393,10 @@ namespace eosiosystem {
                { source_stake_from, stake_account, asset(transfer_amount), std::string("stake bandwidth") }
             );
          }
+         if (from == receiver)
+         {
+            changepscore(receiver, stake_net_delta + stake_cpu_delta);
+         }
       }
 
       // update voting power
@@ -459,6 +463,8 @@ namespace eosiosystem {
       );
 
       refunds_tbl.erase( req );
+      // update powerscore
+      updatepscore(owner);
    }
 
 

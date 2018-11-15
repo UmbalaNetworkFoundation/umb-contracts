@@ -7,7 +7,7 @@
 
 namespace eosiosystem
 {
-using eosio::bytes;
+
 using eosio::const_mem_fun;
 using eosio::indexed_by;
 using eosio::print;
@@ -17,7 +17,7 @@ using eosio::transaction;
 /**
  * @private
  */
-void system_contract::update_powerscore(const name owner)
+void system_contract::updatepscore(const name owner)
 {
    auto it = _voters.find(owner.value);
    if (it != _voters.end())
@@ -58,7 +58,7 @@ void system_contract::update_powerscore(const name owner)
    }
 }
 
-void system_contract::change_powerscore(account_name account, asset delta_asset)
+void system_contract::changepscore(name account, asset delta_asset)
 {
    int64_t delta = delta_asset.amount;
    auto it = _voters.find(account.value);
@@ -88,7 +88,7 @@ void system_contract::change_powerscore(account_name account, asset delta_asset)
    else
    {
       //update unconverted tokens
-      update_powerscore(account);
+      updatepscore(account);
 
       // spend new tokens for powerscore
       if (it == _voters.end())

@@ -15,6 +15,7 @@
 using namespace eosio::chain;
 using namespace eosio::testing;
 using namespace fc;
+using namespace std;
 
 using mvo = fc::mutable_variant_object;
 
@@ -271,6 +272,14 @@ public:
          return base_tester::push_action( std::move(act), auth ? uint64_t(signer) : signer == N(bob111111111) ? N(alice1111111) : N(bob111111111) );
    }
 
+   action_result updatep_reputation_score(const account_name& account) {
+      cout << " acount: " << account << ", N: " << name(account) << endl;
+      return push_action(
+                        N(alice),
+                        N(updaterscore),
+                        mvo()("owner", account));
+   }
+
    action_result stake( const account_name& from, const account_name& to, const asset& net, const asset& cpu ) {
       return push_action( name(from), N(delegatebw), mvo()
                           ("from",     from)
@@ -363,6 +372,16 @@ public:
 
    uint32_t last_block_time() const {
       return time_point_sec( control->head_block_time() ).sec_since_epoch();
+   }
+
+   asset get_pending_powerscore( const account_name& act ) {
+      vector<char> data = get_row_by_account( config::system_account_name, act, N(unpscore), act );
+      return data.empty() ? asset(0, symbol(CORE_SYMBOL)) : abi_ser.binary_to_variant( "pending_powerscore", data, abi_serializer_max_time )["token"].as<asset>();
+   }
+
+   asset get_powerscore( const account_name& act ) {
+      vector<char> data = get_row_by_account( config::system_account_name, act, N(pscore), act );
+      return data.empty() ? asset(0, symbol(CORE_SYMBOL)) : abi_ser.binary_to_variant( "powerscore", data, abi_serializer_max_time )["token"].as<asset>();
    }
 
    asset get_balance( const account_name& act, symbol balance_symbol = symbol{CORE_SYM} ) {
@@ -612,16 +631,5 @@ inline fc::mutable_variant_object proxy( account_name acct ) {
 inline uint64_t M( const string& eos_str ) {
    return core_sym::from_string( eos_str ).get_amount();
 }
-
-asset get_pending_powerscore( const account_name& act ) {
-   vector<char> data = get_row_by_account( config::system_account_name, act, N(unpscore), act );
-   return data.empty() ? asset(0, symbol(CORE_SYMBOL)) : abi_ser.binary_to_variant( "pending_powerscore", data, abi_serializer_max_time )["token"].as<asset>();
-}
-
-asset get_powerscore( const account_name& act ) {
-   vector<char> data = get_row_by_account( config::system_account_name, act, N(pscore), act );
-   return data.empty() ? asset(0, symbol(CORE_SYMBOL)) : abi_ser.binary_to_variant( "powerscore", data, abi_serializer_max_time )["token"].as<asset>();
-}
-
 
 }

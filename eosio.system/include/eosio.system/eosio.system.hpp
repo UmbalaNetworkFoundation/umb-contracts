@@ -343,7 +343,14 @@ namespace eosiosystem {
 
          // function defined in reputation_score.cpp
          [[eosio::action]]
-         void updateprscore(const name account);
+         void updaterscore(const name account);
+
+         // defined power_score.cpp
+         [[eosio::action]]
+         void updatepscore(name owner);
+
+         [[eosio::action]]
+         void changepscore(name account, asset delta_asset); 
 
       private:
          // Implementation details:
@@ -380,10 +387,8 @@ namespace eosiosystem {
          double update_total_votepay_share( time_point ct,
                                             double additional_shares_delta = 0.0, double shares_rate_delta = 0.0 );
 
-         // defined powerscore.cpp
-         void update_powerscore(account_name owner);
-
-         void change_powerscore(account_name account, asset delta_asset);   
+         void updaterescore(const name account);
+  
    };
 
 } /// eosiosystem
