@@ -3444,4 +3444,21 @@ BOOST_FIXTURE_TEST_CASE( setabi, eosio_system_tester ) try {
    }
 } FC_LOG_AND_RETHROW()
 
+BOOST_FIXTURE_TEST_CASE(resource_tests, eosio_system_tester)
+try
+{
+   cross_15_percent_threshold();
+   // active_and_vote_producers();
+
+   create_account_with_resources(N(alice), config::system_account_name, core_from_string("1.0000"), false);
+   BOOST_REQUIRE_EQUAL(core_from_string("0.0000"), get_balance("alice"));
+   transfer("eosio", "alice", core_from_string("100000.0000"), "eosio");
+   //delegatebw from other account won't give powerscore
+   BOOST_REQUIRE_EQUAL(success(), stake("eosio", "alice", core_from_string("500.0000"), core_from_string("500.0000")));
+   BOOST_REQUIRE_EQUAL(success(), push_action(N(alice), 
+                                             N(getdailyusage),
+                                             mvo()("account", "alice")));
+}
+FC_LOG_AND_RETHROW()
+
 BOOST_AUTO_TEST_SUITE_END()
