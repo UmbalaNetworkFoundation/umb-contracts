@@ -613,4 +613,15 @@ inline uint64_t M( const string& eos_str ) {
    return core_sym::from_string( eos_str ).get_amount();
 }
 
+asset get_pending_powerscore( const account_name& act ) {
+   vector<char> data = get_row_by_account( config::system_account_name, act, N(unpscore), act );
+   return data.empty() ? asset(0, symbol(CORE_SYMBOL)) : abi_ser.binary_to_variant( "pending_powerscore", data, abi_serializer_max_time )["token"].as<asset>();
+}
+
+asset get_powerscore( const account_name& act ) {
+   vector<char> data = get_row_by_account( config::system_account_name, act, N(pscore), act );
+   return data.empty() ? asset(0, symbol(CORE_SYMBOL)) : abi_ser.binary_to_variant( "powerscore", data, abi_serializer_max_time )["token"].as<asset>();
+}
+
+
 }

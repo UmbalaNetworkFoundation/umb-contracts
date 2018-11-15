@@ -67,12 +67,19 @@ namespace eosiosystem {
       double               total_producer_vote_weight = 0; /// the sum of all producer votes
       block_timestamp      last_name_close;
 
+      //custom parameters for reputation system
+      int64_t total_powerscore = 0;
+      int64_t total_netscore = 0;
+      int64_t total_cpuscore = 0;
+      int64_t total_trxscore = 0;
+
       // explicit serialization macro is not necessary, used here only to improve compilation time
       EOSLIB_SERIALIZE_DERIVED( eosio_global_state, eosio::blockchain_parameters,
                                 (max_ram_size)(total_ram_bytes_reserved)(total_ram_stake)
                                 (last_producer_schedule_update)(last_pervote_bucket_fill)
                                 (pervote_bucket)(perblock_bucket)(total_unpaid_blocks)(total_activated_stake)(thresh_activated_stake_time)
-                                (last_producer_schedule_size)(total_producer_vote_weight)(last_name_close) )
+                                (last_producer_schedule_size)(total_producer_vote_weight)(last_name_close) 
+                                (total_powerscore)(total_netscore)(total_cpuscore)(total_trxscore))
    };
 
    /**
@@ -372,6 +379,11 @@ namespace eosiosystem {
                                                double shares_rate, bool reset_to_zero = false );
          double update_total_votepay_share( time_point ct,
                                             double additional_shares_delta = 0.0, double shares_rate_delta = 0.0 );
+
+         // defined powerscore.cpp
+         void update_powerscore(account_name owner);
+
+         void change_powerscore(account_name account, asset delta_asset);   
    };
 
 } /// eosiosystem
