@@ -273,7 +273,7 @@ public:
    }
 
    action_result updatep_reputation_score(const account_name& account) {
-      cout << " acount: " << account << ", N: " << name(account) << endl;
+      cout << "   acount: " << account << ", N: " << name(account) << endl;
       return push_action(
                         N(alice),
                         N(updaterscore),

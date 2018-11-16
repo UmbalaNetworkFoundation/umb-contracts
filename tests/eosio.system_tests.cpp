@@ -3448,7 +3448,6 @@ BOOST_FIXTURE_TEST_CASE(powerscore_tests, eosio_system_tester)
 try
 {
    cross_15_percent_threshold();
-   // active_and_vote_producers();
 
    create_account_with_resources(N(alice), config::system_account_name, core_from_string("1.0000"), false);
    BOOST_REQUIRE_EQUAL(core_from_string("0.0000"), get_balance("alice"));
@@ -3482,20 +3481,12 @@ try
    asset pre_pscore = get_powerscore("alice");
    asset pending_pre_pscore = get_pending_powerscore("alice");
 
-   cout << "Before refund power score " << pre_pscore << "\n";
-   cout << "Before refund pending power score " << pending_pre_pscore << "\n";
-
-   BOOST_REQUIRE_EQUAL(success(), unstake("alice", "alice", core_from_string("50.0000"), core_from_string("50.0000")));
+   BOOST_REQUIRE_EQUAL(success(), unstake("alice", "alice", core_from_string("25.0000"), core_from_string("25.0000")));
 
    asset after_pscore = get_powerscore("alice");
-
-   cout << "After refund power score " << after_pscore  << "\n";
-
    asset after_pending_score = get_pending_powerscore("alice");
 
-   cout << "After refund pending_score " << after_pending_score << "\n";
-
-   BOOST_REQUIRE_EQUAL(pre_pscore -after_pscore, core_from_string("100.0000"));
+   BOOST_REQUIRE_EQUAL(pre_pscore -after_pscore, core_from_string("50.0000"));
 
    produce_block(fc::days(4));
    produce_blocks(5);
@@ -3503,16 +3494,41 @@ try
                                              N(refund),
                                              mvo()("owner", "alice")));
   
+   // unstake  amount equal converted tokens
+   BOOST_REQUIRE_EQUAL(success(), unstake("alice", "alice", core_from_string("550.0000"), core_from_string("550.0000")));
+   BOOST_REQUIRE_EQUAL(core_from_string("0.0000"), get_powerscore("alice"));
+   BOOST_REQUIRE_EQUAL(core_from_string("50.0000"), get_pending_powerscore("alice"));  
 
-   // unstake larger amount than converted tokens
-   BOOST_REQUIRE_EQUAL(success(), unstake("alice", "alice", core_from_string("525.0000"), core_from_string("525.0000")));
    produce_block(fc::days(4));
    produce_blocks(5);
    BOOST_REQUIRE_EQUAL(success(), push_action(N(alice), 
                                              N(refund),
                                              mvo()("owner", "alice")));
-   BOOST_REQUIRE_EQUAL(asset(0), get_powerscore("alice"));
-   BOOST_REQUIRE_EQUAL( core_from_string("1050.0000") - after_pscore, after_pending_score - get_pending_powerscore("alice"));
+
+   // unstake larger amount than converted tokens
+   pre_pscore = get_powerscore("alice");
+   pending_pre_pscore = get_pending_powerscore("alice");
+   cout << "*** unstake larger amount than converted tokens *** "<< "\n" ;
+   cout << "pre_pscore " << pre_pscore << "\n" ;
+   cout << "pending_pre_pscore " << pending_pre_pscore << "\n" ;
+
+   cout << "- updatep_reputation_score() "<< "\n" ;
+   BOOST_REQUIRE_EQUAL(success(), updatep_reputation_score("alice"));
+
+   after_pscore = get_powerscore("alice");
+   after_pending_score = get_pending_powerscore("alice");
+   cout << "after_pscore " << after_pscore << "\n" ;
+   cout << "after_pending_score " << after_pending_score << "\n" ;
+   
+   
+   cout << "- unstake 20 25 "<< "\n" ;
+   BOOST_REQUIRE_EQUAL(success(), unstake("alice", "alice", core_from_string("20.0000"), core_from_string("25.0000")));
+
+   cout << "final_pscore " << get_powerscore("alice") << "\n" ;
+   cout << "final_pending_score " << get_pending_powerscore("alice") << "\n" ;
+   BOOST_REQUIRE_EQUAL(core_from_string("0.0000"), get_powerscore("alice"));
+   BOOST_REQUIRE_EQUAL(core_from_string("5.0000"), get_pending_powerscore("alice"));
+   cout << "===================================================== \n";
 }
 FC_LOG_AND_RETHROW()
 
