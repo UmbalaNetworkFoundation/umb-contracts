@@ -98,7 +98,6 @@ void system_contract::changepscore(name account, asset delta_asset)
       {
          _voters.modify(it, account, [&](auto &rs) {
             rs.unvested_power += delta;
-            eosio_assert(delta == 0,"unvested power");
          });
       }
       else

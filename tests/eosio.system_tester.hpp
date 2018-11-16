@@ -277,7 +277,7 @@ public:
       return push_action(
                         N(alice),
                         N(updaterscore),
-                        mvo()("owner", account));
+                        mvo()("account", account));
    }
 
    action_result stake( const account_name& from, const account_name& to, const asset& net, const asset& cpu ) {

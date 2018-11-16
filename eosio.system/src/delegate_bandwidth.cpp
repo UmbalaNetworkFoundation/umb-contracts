@@ -450,8 +450,6 @@ namespace eosiosystem {
       );
 
       refunds_tbl.erase( req );
-      // update powerscore
-      updatepscore(owner);
    }
 
 
